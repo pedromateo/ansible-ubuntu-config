@@ -1,0 +1,104 @@
+---
+
+- hosts: all
+  vars:
+    a_var: 1
+
+  tasks:
+  
+  - name: Update all packages to the latest version
+    apt: upgrade=dist
+    become: yes
+
+  - name: Install Base Packages
+    package: name={{ item }} state=present update_cache=yes
+    with_items:
+      - vim
+      - git
+      - subversion
+      - build-essential
+      - chromium-browser
+      - p7zip
+      - terminator
+      - htop
+      - kolourpaint4
+      - inkscape
+      - vlc
+      - emacs24 
+      - bleachbit 
+      - wine
+    become: yes
+
+
+###
+### LaTeX
+
+  - name: Install Latex and TexMaker
+    package: name={{ item }} state=present update_cache=yes
+    with_items:
+       - texlive-full
+#       - texmaker
+    become: yes
+
+
+
+###
+### Spotify
+
+  - name: Add Spotify Key
+    apt_key: keyserver=hkp://keyserver.ubuntu.com:80 id=BBEBDCB318AD50EC6865090613B00F1FD2C19886
+    become: yes
+
+  - name: Add Spotify Repository
+    apt_repository: repo='deb http://repository.spotify.com stable non-free' state=present update_cache=yes
+    become: yes
+
+  - name: Install Spotify
+    apt: name=spotify-client state=present
+    become: yes
+
+
+###
+### Dropbox
+
+  - name: Dropbox vars 1
+    set_fact:
+      dropbox_version: "2015.10.28"
+      dropbox_architecture: "{% if ansible_architecture == 'x86_64' %}amd64{% else %}i386{% endif %}"
+
+  - name: Dropbox vars 2
+    set_fact:
+      dropbox_url_ubuntu_deb: "https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_{{dropbox_version}}_{{dropbox_architecture}}.deb"
+      dropbox_tmp_deb: "/tmp/dropbox_{{dropbox_version}}.deb"
+
+  - name: Download Ubuntu dropbox package
+    get_url: url={{ dropbox_url_ubuntu_deb }} dest={{dropbox_tmp_deb}}
+    become: yes
+
+  - name: Install Ubuntu dropbox package
+    apt: deb={{dropbox_tmp_deb}}
+    become: yes
+
+
+###
+### Skype
+
+  - name: Skype vars 1
+    set_fact:
+      skype_version: "beta-ubuntu"
+      skype_architecture: "{% if ansible_architecture == 'x86_64' %}64{% else %}32{% endif %}"
+      
+  - name: Skype vars 2
+    set_fact:
+      skype_url_ubuntu_deb: "https://get.skype.com/go/getskype-linux-{{skype_version}}-{{skype_architecture}}"
+      skype_tmp_deb: "/tmp/skype_{{skype_version}}.deb"
+
+  - name: Download Ubuntu skype package
+    get_url: url={{ skype_url_ubuntu_deb }} dest={{skype_tmp_deb}}
+    become: yes
+
+  - name: Install Ubuntu skype package
+    apt: deb={{skype_tmp_deb}}
+    become: yes
+    
+    
