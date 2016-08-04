@@ -27,6 +27,7 @@
       - emacs24 
       - bleachbit 
       - wine
+      - ssh
     become: yes
 
 
